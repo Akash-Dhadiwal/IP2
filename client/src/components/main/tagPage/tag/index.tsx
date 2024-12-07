@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './index.css';
 import { Tag, TagData } from '../../../../types';
 import { getTagByName } from '../../../../services/tagService';
+import useTagSelected from '../../../../hooks/useTagSelected';
 
 /**
  * Props for the Tag component.
@@ -24,23 +25,7 @@ interface TagProps {
  */
 const TagView = ({ t, clickTag }: TagProps) => {
   // TODO: Task 1 - Refactor the Tag component to use the useTagSelected hook
-  const [tag, setTag] = useState<Tag>({
-    name: '',
-    description: '',
-  });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getTagByName(t.name);
-        setTag(res || { name: 'Error', description: 'Error' });
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
-      }
-    };
-    fetchData();
-  }, [t.name]);
+  const { tag } = useTagSelected(t);
 
   return (
     <div

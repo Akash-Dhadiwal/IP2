@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useState, KeyboardEvent } from 'react';
 import './index.css';
+import useHeader from '../../hooks/useHeader';
 
 /**
  * Interface representing the props for the Header component.
@@ -23,18 +24,7 @@ interface HeaderProps {
  */
 const Header = ({ search, setQuestionPage }: HeaderProps) => {
   // TODO: Task 1 - Refactor the Header component to use the useHeader hook
-  const [val, setVal] = useState<string>(search);
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setVal(e.target.value);
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      setQuestionPage(e.currentTarget.value, 'Search Results');
-    }
-  };
+  const { val, handleInputChange, handleKeyDown } = useHeader({ search, setQuestionPage });
 
   return (
     <div id='header' className='header'>
