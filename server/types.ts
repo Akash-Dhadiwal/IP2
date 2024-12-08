@@ -20,6 +20,7 @@ export interface Answer {
   ansBy: string;
   ansDateTime: Date;
   // TODO: Task 2 - Add field
+  comments: Comment[];
 }
 
 /**
@@ -76,6 +77,7 @@ export interface Question {
   upVotes: string[];
   downVotes: string[];
   // TODO: Task 2 - Add field
+  comments: Comment[];
 }
 
 /**
@@ -138,6 +140,10 @@ export interface VoteRequest extends Request {
  */
 export interface Comment {
   // TODO: Task 2 - Create the `Comment` interface
+  _id?: ObjectId;
+  text: string;
+  commentBy: string;
+  commentDateTime: Date;
 }
 
 /**
@@ -149,6 +155,9 @@ export interface Comment {
 export interface AddCommentRequest extends Request {
   body: {
     // TODO: Task 2 - Add fields
+    id: string;
+    type: 'question' | 'answer';
+    comment: Comment;
   };
 }
 
@@ -156,4 +165,4 @@ export interface AddCommentRequest extends Request {
  * Type representing the possible responses for a Comment-related operation.
  */
 // TODO: Task 2 - Create the `CommentResponse` type
-export type CommentResponse = null;
+export type CommentResponse = Comment | { error: string };;

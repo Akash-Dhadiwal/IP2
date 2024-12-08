@@ -14,7 +14,7 @@ import AnswerModel from './answers';
 import QuestionModel from './questions';
 import TagModel from './tags';
 // TODO: Task 2 - Uncomment after implementing the CommentModel
-// import CommentModel from './comments';
+import CommentModel from './comments';
 
 /**
  * Parses tags from a search string.
@@ -381,7 +381,12 @@ export const saveAnswer = async (answer: Answer): Promise<AnswerResponse> => {
  */
 export const saveComment = async (comment: Comment): Promise<CommentResponse> => {
   // TODO: Task 2 - Implement the saveComment function
-  throw new Error('Function not implemented.');
+  try {
+    const result = await CommentModel.create(comment);
+    return result;
+  } catch (error) {
+    return { error: 'Error when saving a comment' };
+  }
 };
 
 /**
@@ -562,9 +567,23 @@ export const addComment = async (
   id: string,
   type: 'question' | 'answer',
   comment: Comment,
-): Promise<QuestionResponse | AnswerResponse> =>
+): Promise<QuestionResponse | AnswerResponse> => {
   // TODO: Task 2 - Implement the addComment function
-  ({ error: 'Error when adding comment' });
+  try {
+    const Model = type === 'question' ? QuestionModel : AnswerModel;
+    const result = await (Model as any).findOneAndUpdate(
+      { _id: id },
+      { $push: { comments: comment } },
+      { new: true }
+    ) as any;
+    if (!result) {
+      throw new Error(`${type.charAt(0).toUpperCase() + type.slice(1)} not found`);
+    }
+    return result;
+  } catch (error) {
+    return { error: `Error when adding comment` };
+  }
+};
 
 /**
  * Gets a map of tags and their corresponding question counts.

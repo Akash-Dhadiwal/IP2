@@ -38,6 +38,7 @@ const questionSchema: Schema = new Schema(
     upVotes: [{ type: String }],
     downVotes: [{ type: String }],
     // TODO: Task 2 - Add field
+    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
   },
   { collection: 'Question' },
 );

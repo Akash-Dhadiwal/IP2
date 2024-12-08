@@ -811,6 +811,37 @@ describe('application module', () => {
       });
 
       // TODO: Task 2 - Add more tests for the addComment function
+      test('addComment should return the updated answer when given `answer`', async () => {
+        const answer = ans1;
+        answer.comments.push(com1);
+        mockingoose(AnswerModel).toReturn(answer, 'findOneAndUpdate');
+      
+        const result = (await addComment(
+          answer._id?.toString() as string,
+          'answer',
+          com1,
+        )) as Answer;
+      
+        expect(result.comments.length).toEqual(1);
+        expect(result.comments).toContain(com1._id);
+      });
+      
+      test('addComment should return an error if the question is not found', async () => {
+        mockingoose(QuestionModel).toReturn(null, 'findOneAndUpdate');
+        const result = await addComment('nonexistent_id', 'question', com1);
+        expect(result).toEqual({ error: 'Error when adding comment' });
+      });
+      
+      test('addComment should return an error if the answer is not found', async () => {
+        mockingoose(AnswerModel).toReturn(null, 'findOneAndUpdate');
+        const result = await addComment('nonexistent_id', 'answer', com1);
+        expect(result).toEqual({ error: 'Error when adding comment' });
+      });
+      
+      test('addComment should handle invalid type', async () => {
+        const result = await addComment('some_id', 'invalid_type' as any, com1);
+        expect(result).toEqual({ error: 'Error when adding comment' });
+      });
     });
   });
 });

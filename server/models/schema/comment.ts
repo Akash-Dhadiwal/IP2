@@ -11,6 +11,17 @@ import { Schema } from 'mongoose';
  */
 const commentSchema: Schema = new Schema(
   // TODO: Task 2 - Create Schema for comment
+  {
+    text: {
+      type: String,
+    },
+    commentBy: {
+      type: String,
+    },
+    commentDateTime: {
+      type: Date,
+    },
+  },
   { collection: 'Comment' },
 );
 
