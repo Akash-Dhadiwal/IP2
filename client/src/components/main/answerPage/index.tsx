@@ -49,6 +49,34 @@ const AnswerPage = ({ qid, handleNewQuestion, handleNewAnswer }: AnswerPageProps
     // TODO: Task 2 - Implement the handleNewComment function
     // This function should add a new comment to the question or answer.
     // It should call the addComment function from the commentService file.
+    if (!targetId) {
+      console.error('Target ID is undefined');
+      return;
+    }
+    try {
+      const newComment = await addComment(targetId, targetType, comment);
+      // Update local state
+      if (targetType === 'question' && question) {
+        console.log('incoming question', question);
+        setQuestion({
+          ...question,
+          comments: [...(question.comments || []), newComment],
+        });
+        console.log('set question', question);
+      } else if (targetType === 'answer' && question) {
+        setQuestion({
+          ...question,
+          answers: question.answers.map(ans =>
+            ans._id === targetId
+              ? { ...ans, comments: [...(ans.comments || []), newComment] }
+              : ans,
+          ),
+        });
+      }
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      // You might want to show an error message to the user here
+    }
   };
 
   useEffect(() => {
@@ -84,16 +112,38 @@ const AnswerPage = ({ qid, handleNewQuestion, handleNewAnswer }: AnswerPageProps
       type: 'question' | 'answer';
     }) => {
       // TODO: Task 3 - Complete function to handle comment updates from the socket
+      setQuestion(prevQuestion => {
+        console.log('incoming prevQuestion : ', prevQuestion);
+        if (!prevQuestion) return prevQuestion;
+
+        if (type === 'question' && 'title' in result) {
+          console.log('setting prevQuestion : ', result);
+          return result as Question;
+        }
+        if (type === 'answer') {
+          return {
+            ...prevQuestion,
+            answers: prevQuestion.answers.map(ans =>
+              ans._id === (result as Answer)._id ? (result as Answer) : ans,
+            ),
+          };
+        }
+        return prevQuestion;
+      });
     };
 
     socket.on('answerUpdate', handleAnswerUpdate);
     socket.on('viewsUpdate', setQuestion);
 
     // TODO: Task 3 - Setup appropriate socket listener(s) for comment updates
+    socket.on('commentUpdate', handleCommentUpdate);
 
     return () => {
       socket.off('answerUpdate', handleAnswerUpdate);
       socket.off('viewsUpdate', setQuestion);
+
+      // TODO: Task 3 - Setup appropriate socket listener(s) for comment updates
+      socket.off('commentUpdate', handleCommentUpdate);
     };
   }, [socket]);
 
@@ -114,14 +164,20 @@ const AnswerPage = ({ qid, handleNewQuestion, handleNewAnswer }: AnswerPageProps
         views={question.views}
         text={question.text}
         askby={question.askedBy}
-        meta={getMetaData(new Date(question.askDateTime))}
+        meta={getMetaData(new Date(question.askDateTime.toString()))}
       />
-      {question.answers.map((a, idx) => (
+      <CommentSection
+        comments={question.comments || []}
+        handleAddComment={comment => handleNewComment(comment, 'question', question._id)}
+      />
+      {question?.answers?.map((a, idx) => (
         <AnswerView
           key={idx}
           text={a.text}
           ansBy={a.ansBy}
-          meta={getMetaData(new Date(a.ansDateTime))}
+          meta={getMetaData(new Date(a.ansDateTime.toString()))}
+          comments={a.comments || []}
+          handleAddComment={comment => handleNewComment(comment, 'answer', a._id)}
         />
       ))}
       <button

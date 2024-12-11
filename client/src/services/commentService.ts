@@ -18,7 +18,13 @@ const addComment = async (
 ): Promise<Comment> => {
   // TODO: Task 2 - Implement the addComment function
   // It should call the `COMMENT_API_URL/addComment` to add the comment to the backend database.
-  throw new Error('Not implemented');
+  const data = { id, type, comment };
+
+  const res = await api.post(`${COMMENT_API_URL}/addComment`, data);
+  if (res.status !== 200) {
+    throw new Error('Error while creating a new comment');
+  }
+  return res.data;
 };
 
 export default addComment;

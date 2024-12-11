@@ -295,10 +295,21 @@ export const populateDocument = async (
         {
           path: 'answers',
           model: AnswerModel,
+          populate: {
+            path: 'comments',
+            model: CommentModel,
+          },
+        },
+        {
+          path: 'comments',
+          model: CommentModel,
         },
       ]);
     } else if (type === 'answer') {
-      result = await AnswerModel.findOne({ _id: id });
+      result = await AnswerModel.findOne({ _id: id }).populate({
+        path: 'comments',
+        model: CommentModel,
+      });
     }
 
     return result;
@@ -332,6 +343,14 @@ export const fetchAndIncrementQuestionViewsById = async (
       {
         path: 'answers',
         model: AnswerModel,
+        populate: {
+          path: 'comments',
+          model: CommentModel,
+        },
+      },
+      {
+        path: 'comments',
+        model: CommentModel,
       },
     ]);
     return q;
@@ -571,11 +590,13 @@ export const addComment = async (
   // TODO: Task 2 - Implement the addComment function
   try {
     const Model = type === 'question' ? QuestionModel : AnswerModel;
-    const result = await (Model as any).findOneAndUpdate(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await (Model as any).findOneAndUpdate(
       { _id: id },
       { $push: { comments: comment } },
-      { new: true }
-    ) as any;
+      { new: true },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    )) as any;
     if (!result) {
       throw new Error(`${type.charAt(0).toUpperCase() + type.slice(1)} not found`);
     }

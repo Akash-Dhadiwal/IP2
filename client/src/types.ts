@@ -31,6 +31,9 @@ export type OrderType = keyof typeof orderTypeDisplayName;
  */
 export interface Comment {
   // TODO: Task 2 - Define the Comment interface
+  text: string;
+  commentBy: string;
+  commentDateTime: Date;
 }
 
 /**
@@ -82,6 +85,7 @@ export interface Answer {
   ansBy: string;
   ansDateTime: Date;
   // TODO: Task 2 - Add the comments field to the Answer interface
+  comments: Comment[];
 }
 
 /**
@@ -111,4 +115,5 @@ export interface Question {
   upVotes: string[];
   downVotes: string[];
   // TODO: Task 2 - Add the comments field to the Question interface
+  comments: Comment[];
 }

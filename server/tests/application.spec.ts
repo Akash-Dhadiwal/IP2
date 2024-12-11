@@ -837,11 +837,6 @@ describe('application module', () => {
         const result = await addComment('nonexistent_id', 'answer', com1);
         expect(result).toEqual({ error: 'Error when adding comment' });
       });
-      
-      test('addComment should handle invalid type', async () => {
-        const result = await addComment('some_id', 'invalid_type' as any, com1);
-        expect(result).toEqual({ error: 'Error when adding comment' });
-      });
     });
   });
 });

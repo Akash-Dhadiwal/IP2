@@ -5,7 +5,7 @@ import useUserContext from './useUserContext';
 
 const useVoteStatus = (question: Question) => {
   // TODO: Task 1 - Refactor the the useVoteStatus hook to use the useUserContext hook - Do this after the above step
-  const { user } = useUserContext();
+  const { user, socket } = useUserContext();
   const [count, setCount] = useState<number>(0);
   const [voted, setVoted] = useState<number>(0);
 
@@ -26,9 +26,26 @@ const useVoteStatus = (question: Question) => {
 
     const handleVoteUpdate = (voteData: VoteData) => {
       // TODO: Task 3 - Complete function to handle vote updates from the socket
+      if (voteData.qid === question._id) {
+        const newCount = voteData.upVotes.length - voteData.downVotes.length;
+        setCount(newCount);
+        if (voteData.upVotes.includes(user.username)) {
+          setVoted(1);
+        } else if (voteData.downVotes.includes(user.username)) {
+          setVoted(-1);
+        } else {
+          setVoted(0);
+        }
+      }
     };
 
     // TODO: Task 3 - Setup appropriate socket listener(s) for vote updates
+    socket.on('handleVoteUpdate', handleVoteUpdate);
+
+    return () => {
+      // TODO: Task 3 - Setup appropriate socket listener(s) for vote updates
+      socket.off('handleVoteUpdate', handleVoteUpdate);
+    };
   }, [question, user.username]);
 
   const handleVote = async (type: string) => {
